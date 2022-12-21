@@ -38,4 +38,9 @@ public class SimCard {
     public void setActive(boolean active) {
         isActive = active;
     }
+
+    @Override
+    public String toString() {
+        return "SimCard {iccid=" + iccid + ", customerEmail=" + customerEmail + ", active=" + isActive + "}";
+    }
 }

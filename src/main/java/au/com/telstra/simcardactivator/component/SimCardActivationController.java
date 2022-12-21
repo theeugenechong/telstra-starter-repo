@@ -3,24 +3,34 @@ package au.com.telstra.simcardactivator.component;
 import au.com.telstra.simcardactivator.foundation.ActuatorResponse;
 import au.com.telstra.simcardactivator.foundation.SimCard;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
 public class SimCardActivationController {
 
     private final SimCardActuationHandler simCardActuationHandler;
+    private final DatabaseExecutor dbExecutor;
 
     @Autowired
-    public SimCardActivationController(SimCardActuationHandler simCardActuationHandler) {
+    public SimCardActivationController(SimCardActuationHandler simCardActuationHandler, DatabaseExecutor dbExecutor) {
         this.simCardActuationHandler = simCardActuationHandler;
+        this.dbExecutor = dbExecutor;
+    }
+
+    @GetMapping("/sim")
+    public SimCard querySimById(@RequestParam(required = false) Long simCardId) {
+        SimCard simCard = dbExecutor.queryById(simCardId);
+        if (simCard != null) {
+            System.out.println(simCard);
+        }
+        return simCard;
     }
 
     @PostMapping("/activate")
-    public void simCardActivation(@RequestBody SimCard simCard) {
+    public void activateSim(@RequestBody SimCard simCard) {
         ActuatorResponse actuatorResponse = simCardActuationHandler.actuate(simCard);
-        System.out.println(actuatorResponse.isSuccess());
+        dbExecutor.saveSim(simCard, actuatorResponse);
+        System.out.println(actuatorResponse);
     }
 }
